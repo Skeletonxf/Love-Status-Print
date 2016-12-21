@@ -10,9 +10,15 @@ statusPrint.errorMode = false
 
 statusPrint.oldPrint = print
 
--- time in seconds that a message can be shown at
+-- min time in seconds that a message can be shown at
 -- messages under the bottom one still showing decay at quarter rate
-statusPrint.maxTimeForMessage = 2
+-- so will last longer
+statusPrint.minTimeForMessage = 1.5
+
+-- string to set printing location
+-- "top" is the top corner of the screen (and the default behaviour)
+-- "bottom-left" will print from the bottom left corner of the screen
+statusPrint.screenPrintLocation = "top"
 
 -- non holey table to track message content
 local printMessages = {}
@@ -114,11 +120,11 @@ function statusPrint.update(dt)
     else
     printMessageTimeShown[k] = v + dt*0.25
     end
-    if v > statusPrint.maxTimeForMessage then
+    if v > statusPrint.minTimeForMessage then
       flagRemoval[#flagRemoval+1] = k
     end
   end
-  -- remove all the flags and the messages shown over 2 seconds
+  -- remove all the flags and the messages shown over the time
   for _, v in pairs(flagRemoval) do
     table.remove(printMessageTimeShown, v)
     table.remove(printMessages,v)
@@ -130,15 +136,30 @@ function statusPrint.update(dt)
 end
 
 function statusPrint.draw()
+  local verticalStep = 15
+  local paddingX = 5
+  local paddingY = 5
+  local startYPrint = 0
+  if statusPrint.screenPrintLocation == "bottom-left" then
+    verticalStep = -verticalStep
+    startYPrint = love.graphics.getHeight()
+    paddingY = -25
+  else
+    -- default behaviour
+  end
   for i, v in ipairs(printMessages) do
     local messageSuffix = ""
     if duplicatePrintMessageTracker[v] then
       -- set the message to the string of the duplicate count if applicable
       messageSuffix = messageSuffix .. " - " .. duplicatePrintMessageTracker[v]
     end
-    love.graphics.setColor( 255, 255, 255, 255 - printMessageTimeShown[i]*250)
-    love.graphics.printf(v .. messageSuffix,5,5+(15*(i-1)),200,"left")
+    love.graphics.setColor( 255, 255, 255,
+      255 - (printMessageTimeShown[i]/statusPrint.minTimeForMessage)*250)
+    love.graphics.printf(v .. messageSuffix,
+      paddingX,startYPrint+paddingY+(verticalStep*(i-1)),200,"left")
   end
 end
+
+
 
 return statusPrint
