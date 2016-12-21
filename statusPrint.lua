@@ -1,4 +1,3 @@
--- cache the default print function
 local statusPrint = {
   _VERSION     = 'Status Print 0.1',
   _DESCRIPTION = 'Overrides print() to add love2d display on screen',
@@ -33,6 +32,7 @@ local statusPrint = {
 -- throw up an error
 statusPrint.errorMode = false
 
+-- make a copy of the default print function
 statusPrint.oldPrint = print
 
 -- min time in seconds that a message can be shown at
@@ -44,6 +44,9 @@ statusPrint.minTimeForMessage = 1.5
 -- "top" is the top corner of the screen (and the default behaviour)
 -- "bottom-left" will print from the bottom left corner of the screen
 statusPrint.screenPrintLocation = "top"
+
+-- word wrap length for printing
+statusPrint.maxLineLength = 200
 
 -- non holey table to track message content
 local printMessages = {}
@@ -181,10 +184,8 @@ function statusPrint.draw()
     love.graphics.setColor( 255, 255, 255,
       255 - (printMessageTimeShown[i]/statusPrint.minTimeForMessage)*250)
     love.graphics.printf(v .. messageSuffix,
-      paddingX,startYPrint+paddingY+(verticalStep*(i-1)),200,"left")
+      paddingX,startYPrint+paddingY+(verticalStep*(i-1)),statusPrint.maxLineLength,"left")
   end
 end
-
-
 
 return statusPrint
