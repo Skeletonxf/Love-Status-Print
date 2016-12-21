@@ -23,8 +23,3 @@ print(function() print("Wow") end)
 -- module prints each value out recursively and visually
 -- nests the contents with "--"
 print({{"wow"},"hi",5}) 
-
-
---print(sp.draw)
-
---print(draw)
